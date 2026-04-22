@@ -235,6 +235,14 @@ class AppDatabase {
       if (!hasEstimatedRunOutAt) {
         this.db.exec(`ALTER TABLE subscriptions ADD COLUMN estimated_run_out_at TEXT`);
       }
+
+      if (!hasMigratedFromStripe) {
+        this.db.exec(`ALTER TABLE subscriptions ADD COLUMN migrated_from_stripe INTEGER DEFAULT 0`);
+      }
+
+      if (!hasStripePlanId) {
+        this.db.exec(`ALTER TABLE subscriptions ADD COLUMN stripe_plan_id TEXT`);
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.warn('ensureSubscriptionRiskColumns failed:', error.message);

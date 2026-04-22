@@ -483,6 +483,7 @@ app.use('/storage', require('./routes/storage'));
 app.use('/posts', require('./routes/posts'));
 app.use("/auth", require("./routes/auth"));
 app.use("/auth", require("./routes/stellarAuth"));
+app.use("/api/v1/merchants", require("./routes/merchants"));
 app.use("/content", require("./routes/content"));
 app.use("/analytics", require("./routes/analytics"));
 app.use("/storage", require("./routes/storage"));
