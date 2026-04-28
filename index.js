@@ -1,11 +1,12 @@
-const express = require('express');
-const cors = require('cors');
 const dotenv = require('dotenv');
-const promClient = require('prom-client');
+const { initTracing } = require('./src/utils/opentelemetry');
 
 dotenv.config();
-require('dotenv').config();
-dotenv.config();
+initTracing({ serviceName: 'substream-protocol-backend', serviceVersion: '1.0.0' });
+
+const express = require('express');
+const cors = require('cors');
+const promClient = require('prom-client');
 
 // Initialize Prometheus metrics
 const register = new promClient.Registry();
@@ -178,6 +179,9 @@ async function createApp(dependencies = {}) {
   app.use(cors(merchantCors.corsOptionsDelegate()));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
+
+  // Request tracing middleware must be registered early for trace propagation
+  app.use(requestTracingMiddleware);
 
   // Add request start time for accurate monitoring
   app.use(addRequestStartTime);
