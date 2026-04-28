@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+const dotenv = require('dotenv');
+const { initTracing } = require('./src/utils/opentelemetry');
+
+dotenv.config();
+initTracing({ serviceName: 'substream-protocol-backend-worker', serviceVersion: '1.0.0' });
+
 const { loadConfig } = require('./src/config');
 const { BackgroundWorkerService } = require('./src/services/backgroundWorkerService');
 const { SorobanIndexerWorker } = require('./src/services/sorobanIndexerWorker');
@@ -220,6 +226,27 @@ if (args.includes('--soroban')) {
     } catch (error) {
       console.error('[Worker] Failed to start Webhook Dispatcher:', error.message);
       // Don't crash the whole worker if webhook fails to start
+    }
+
+    // === NEW: Start Enhanced Churn Risk Worker ===
+    console.log('[Worker] Starting Enhanced Churn Risk Worker...');
+    try {
+      const churnRiskWorker = new EnhancedChurnRiskWorker({
+        runInterval: 24 * 60 * 60 * 1000, // 24 hours
+        initialDelay: 10 * 60 * 1000, // 10 minutes
+        merchantBatchSize: 10,
+        subscriberBatchSize: 1000,
+        enableDetailedLogging: process.env.CHURN_RISK_DEBUG === 'true'
+      });
+      
+      churnRiskWorker.start().then(() => {
+        console.log('[Worker] Enhanced Churn Risk Worker started successfully');
+      }).catch(error => {
+        console.error('[Worker] Failed to start Enhanced Churn Risk Worker:', error.message);
+      });
+    } catch (error) {
+      console.error('[Worker] Failed to initialize Enhanced Churn Risk Worker:', error.message);
+      // Don't crash the whole worker if churn risk worker fails to start
     }
   }
 }
