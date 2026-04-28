@@ -2,14 +2,13 @@
   "name": "substream-backend",
   "version": "1.0.0",
   "description": "API for SubStream Protocol",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node dist/main",
     "start:ws": "nest start",
     "start:ws:dev": "nest start --watch",
     "start:ws:debug": "nest start --debug --watch",
     "start:ws:prod": "node dist/main",
-    "dev": "nodemon index.js",
     "worker": "node worker.js",
     "worker:dev": "nodemon worker.js",
     "soroban": "node worker.js --soroban",
@@ -17,7 +16,6 @@
     "soroban:health": "node worker.js --soroban --health",
     "pii-scrub": "node workers/piiScrubbingWorker.js",
     "pii-scrub:dry-run": "node workers/piiScrubbingWorker.js 3 --dry-run",
-    "test": "jest",
     "test:soroban": "jest --testPathPattern=soroban",
     "test:pii": "jest piiScrubbing.test.js",
     "migrate": "node migrations/runMigrations.js",
@@ -28,6 +26,12 @@
     "migrate:down": "knex migrate:down",
     "health-check": "node migrations/healthChecker.js",
     "swagger:generate": "GENERATE_SWAGGER=true node -e \"require('./src/utils/swaggerGenerator').generateSwagger()\"",
+    "dev": "concurrently \"npm run start:dev\" \"npm run worker:dev\"",
+    "start:dev": "nest start --watch",
+    "build": "nest build",
+    "sync:historical": "ts-node scripts/sync-historical.ts",
+    "sync:historical:prod": "node dist/scripts/sync-historical.js",
+    "test": "jest",
     "docs": "npm run swagger:generate && echo 'Documentation available at http://localhost:3000/api/docs'"
   },
   "dependencies": {
@@ -94,20 +98,24 @@
     "winston": "^3.19.0",
     "xlsx": "^0.18.5"
   },
-  "engines": {
-    "node": ">=20.11.0"
-  },
   "devDependencies": {
     "@nestjs/cli": "^11.0.21",
     "@types/bcrypt": "^6.0.0",
+    "@types/cli-progress": "^3.11.6",
     "@types/jest": "^29.5.0",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
+    "cli-progress": "^3.12.0",
+    "commander": "^13.1.0",
+    "concurrently": "^9.1.2",
     "jest": "^30.3.0",
     "nodemon": "^3.0.2",
     "socket.io-client": "^4.8.3",
     "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0"
+  },
+  "engines": {
+    "node": ">=20.11.0"
   }
 }
